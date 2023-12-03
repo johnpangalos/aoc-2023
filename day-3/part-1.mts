@@ -5,16 +5,6 @@ export async function main(fileName: string): Promise<number> {
     res.toString(),
   );
 
-  const matrix = text
-    .split("\n")
-    .filter((str) => str.length > 0)
-    .reduce<Record<string, string>>((acc, str, yPos) => {
-      str.split("").forEach((char, xPos) => {
-        acc[`${yPos},${xPos}`] = char;
-      });
-      return acc;
-    }, {});
-
   return text
     .split("\n")
     .filter((str) => str.length > 0)
@@ -33,7 +23,8 @@ export async function main(fileName: string): Promise<number> {
             if (j < 0 || j > arr.length - 1) continue;
             for (let i = xPos - 1; i < xPosEnd + 1; i++) {
               if (i < 0 || i > str.length - 1) continue;
-              const valueToCheck = matrix[`${j},${i}`];
+
+              const valueToCheck = arr[j].split("")[i];
               if (valueToCheck.search(/[0-9.]/)) {
                 return acc + value;
               }
