@@ -20,6 +20,18 @@ export async function run<T extends unknown, U extends unknown>(
   if (process.env.NODE_ENV !== "test") console.log(await fn(args));
 }
 
-export function filterEmpty<T extends string>(arr: T[]) {
+export function filterEmpty(arr: string[]) {
   return arr.filter((item) => item.trim() !== "");
+}
+
+export function expand(min: number, max: number) {
+  return Array.from({ length: max }, (_, k) => k + min);
+}
+
+export function mapTrim(arr: string[]) {
+  return arr.map((item) => item.trim());
+}
+
+export function sum(arr: number[]) {
+  return arr.reduce<number>((acc, val) => acc + val, 0);
 }
