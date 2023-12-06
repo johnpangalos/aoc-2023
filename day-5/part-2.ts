@@ -16,15 +16,18 @@ function backgroundTask(
   );
   return new Promise((resolve) => {
     worker.onmessage = (event: MessageEvent<number>) => {
-      console.log("msg recieved: " + idx);
       resolve(event.data);
       worker.terminate();
+      Bun.gc(true);
     };
     worker.postMessage({ start, length, idx, rules });
   });
 }
 
-export async function main(fileName: string): Promise<number> {
+export async function main(
+  fileName: string,
+  interval: number,
+): Promise<number> {
   const text = await read({ day: 5, fileName });
 
   const [seedsArr, ...maps] = text.lines().split("");
@@ -47,13 +50,24 @@ export async function main(fileName: string): Promise<number> {
     });
   });
 
-  console.log("brute!");
   const final = await Promise.all(
-    seed.map(([start, length], idx) => {
-      return backgroundTask(start, length, idx, rules);
+    seed.flatMap(([start, length], idx) => {
+      if (length > interval) {
+        const promises = [];
+        for (let i = start; i < start + length; i = i + interval) {
+          if (i + interval > start + length) {
+            promises.push(backgroundTask(i, start + length - i, idx, rules));
+          } else {
+            promises.push(backgroundTask(i, interval, idx, rules));
+          }
+        }
+        return promises;
+      } else {
+        return backgroundTask(start, length, idx, rules);
+      }
     }),
   );
   return Math.min(...final);
 }
 
-await run(main, "example-1.txt");
+await run(main, "input.txt", 10000);

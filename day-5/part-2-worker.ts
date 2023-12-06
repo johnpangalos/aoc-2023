@@ -14,7 +14,7 @@ self.onmessage = (
   let min: number | undefined;
   for (let i = start; i < start + length; i++) {
     let s = i.valueOf();
-    if (s % 1000000 === 0) console.log("brute force:" + s + " - idx: " + idx);
+    // if (s % 1000000 === 0) console.log("brute force:" + s + " - idx: " + idx);
     let out = -1;
 
     for (let ruleSet of rules) {
@@ -32,4 +32,5 @@ self.onmessage = (
     if (min === undefined || out < min) min = out;
   }
   self.postMessage(min);
+  Bun.gc(true);
 };
