@@ -52,19 +52,7 @@ export async function main(
 
   const final = await Promise.all(
     seed.flatMap(([start, length], idx) => {
-      if (length > interval) {
-        const promises = [];
-        for (let i = start; i < start + length; i = i + interval) {
-          if (i + interval > start + length) {
-            promises.push(backgroundTask(i, start + length - i, idx, rules));
-          } else {
-            promises.push(backgroundTask(i, interval, idx, rules));
-          }
-        }
-        return promises;
-      } else {
-        return backgroundTask(start, length, idx, rules);
-      }
+      return backgroundTask(start, length, idx, rules);
     }),
   );
   return Math.min(...final);
