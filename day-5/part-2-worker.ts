@@ -11,7 +11,7 @@ self.onmessage = (
   }>,
 ) => {
   const { start, length, idx, rules } = event.data;
-  const output: number[] = [];
+  let min: number | undefined;
   for (let i = start; i < start + length; i++) {
     let s = i.valueOf();
     if (s % 1000000 === 0) console.log("brute force:" + s + " - idx: " + idx);
@@ -29,7 +29,7 @@ self.onmessage = (
       }
       s = out;
     }
-    output.push(out);
+    if (min === undefined || out < min) min = out;
   }
-  self.postMessage(Math.min(...output));
+  self.postMessage(min);
 };

@@ -18,6 +18,7 @@ function backgroundTask(
     worker.onmessage = (event: MessageEvent<number>) => {
       console.log("msg recieved: " + idx);
       resolve(event.data);
+      worker.terminate();
     };
     worker.postMessage({ start, length, idx, rules });
   });
@@ -55,4 +56,4 @@ export async function main(fileName: string): Promise<number> {
   return Math.min(...final);
 }
 
-await run(main, "input.txt");
+await run(main, "example-1.txt");
