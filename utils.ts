@@ -34,6 +34,10 @@ export function int(item: string): number {
   return num;
 }
 
+export function inc(a: number, b: number) {
+  return b - a;
+}
+
 declare global {
   interface Array<T> {
     sum: T extends number ? () => number : never;
@@ -42,6 +46,7 @@ declare global {
   interface String {
     lines: () => string[];
     words: () => string[];
+    chars: () => string[];
   }
 }
 
@@ -64,6 +69,10 @@ Array.prototype.split = function (str: string) {
 
 String.prototype.words = function () {
   return this.split(" ");
+};
+
+String.prototype.chars = function () {
+  return this.split("");
 };
 
 String.prototype.lines = function () {
