@@ -38,6 +38,11 @@ export function inc(a: number, b: number) {
   return b - a;
 }
 
+export function panic<T>(a: T) {
+  if (a === undefined) throw new Error("Panic");
+  return a;
+}
+
 declare global {
   interface Array<T> {
     sum: T extends number ? () => number : never;
