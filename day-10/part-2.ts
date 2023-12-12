@@ -1,3 +1,12 @@
+/* References:
+ *
+ * Shoelace formula - Calculates the area based on corners
+ * https://en.wikipedia.org/wiki/Shoelace_formula
+ *
+ * Pick theorem - Calculates the area based on interior and boundary
+ * points
+ * https://en.wikipedia.org/wiki/Pick%27s_theorem
+ */
 import { read, run, panic, empty } from "@/utils";
 
 const startChar = "S";
@@ -39,6 +48,7 @@ export async function main(fileName: string): Promise<number> {
 
   let count = 0;
 
+  let loop: [x: number, y: number][] = [];
   Object.entries(surround).find(([k, c]) => {
     let curr = c.slice();
     let direction: Direction = k.slice() as Direction;
@@ -48,34 +58,27 @@ export async function main(fileName: string): Promise<number> {
       return num < 0 || num > max || Number.isNaN(num);
     }
 
+    function reset() {
+      count = 0;
+      loop = [];
+    }
+
     while (running) {
       count++;
       const [x, y] = parseCoord(curr);
-      if (validateCoord(x, xMax) || validateCoord(y, yMax)) {
-        count = 0;
-        return;
-      }
+      if (validateCoord(x, xMax) || validateCoord(y, yMax)) return reset();
       const val = map[curr];
-      if (val === ".") {
-        count = 0;
-        return;
-      }
+      if (val === ".") return reset();
       switch (val) {
         case "|":
           if (direction === "up") curr = toCoord(x, y - 1);
           else if (direction === "down") curr = toCoord(x, y + 1);
-          else {
-            count = 0;
-            return;
-          }
+          else return reset();
           break;
         case "-":
           if (direction === "right") curr = toCoord(x + 1, y);
           else if (direction === "left") curr = toCoord(x - 1, y);
-          else {
-            count = 0;
-            return;
-          }
+          else return reset();
           break;
 
         case "L":
@@ -85,10 +88,8 @@ export async function main(fileName: string): Promise<number> {
           } else if (direction === "down") {
             curr = toCoord(x + 1, y);
             direction = "right";
-          } else {
-            count = 0;
-            return;
-          }
+          } else return reset();
+          loop.push([x, y]);
           break;
         case "J":
           if (direction === "right") {
@@ -97,10 +98,8 @@ export async function main(fileName: string): Promise<number> {
           } else if (direction === "down") {
             curr = toCoord(x - 1, y);
             direction = "left";
-          } else {
-            count = 0;
-            return;
-          }
+          } else return reset();
+          loop.push([x, y]);
           break;
         case "7":
           if (direction === "right") {
@@ -109,10 +108,8 @@ export async function main(fileName: string): Promise<number> {
           } else if (direction === "up") {
             curr = toCoord(x - 1, y);
             direction = "left";
-          } else {
-            count = 0;
-            return;
-          }
+          } else return reset();
+          loop.push([x, y]);
           break;
         case "F":
           if (direction === "left") {
@@ -121,12 +118,11 @@ export async function main(fileName: string): Promise<number> {
           } else if (direction === "up") {
             curr = toCoord(x + 1, y);
             direction = "right";
-          } else {
-            count = 0;
-            return;
-          }
+          } else return reset();
+          loop.push([x, y]);
           break;
         case "S":
+          loop.push([x, y]);
           running = false;
           break;
         default:
@@ -136,7 +132,18 @@ export async function main(fileName: string): Promise<number> {
     return true;
   });
 
-  return count / 2;
-}
+  const area =
+    loop.reduce<number>((acc, [x, y], idx, arr) => {
+      if (idx === arr.length - 1) {
+        const [nextX, nextY] = arr[0];
+        acc = acc + (x * nextY - y * nextX);
+      } else {
+        const [nextX, nextY] = arr[idx + 1];
+        acc = acc + (x * nextY - y * nextX);
+      }
+      return acc;
+    }, 0) / 2;
 
+  return Math.abs(area) - count / 2 + 1;
+}
 await run(main, "input.txt");
